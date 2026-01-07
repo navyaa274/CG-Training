@@ -10,17 +10,28 @@ public class Question4 {
         */
 
         double[] num = new double[10];
-        double total;
+        double total = 0;
+        double n;
 
         Scanner scn = new Scanner(System.in);
+        int indx = 0;
 
         while(true){
-            int i = 0;
-            double n = scn.nextDouble();
-            if(n == 0 || n<0 || i>10){
+            n = scn.nextDouble();
+            if(n == 0 || n<0 || indx>9){
                 break;
             }
-            num[i] = n;
+            else{
+                num[indx++] = n;
+            }
         }
+
+        for(int i = 0; i<num.length; i++){
+            total+= num[i];
+        }
+
+        System.out.println("Total of elements: " + total);
+
+        scn.close();
     }
 }
