@@ -9,23 +9,20 @@ with the built-in String equals() method
 public class Question1 {
 
     public static boolean compareStrings(String a, String b){
-        boolean isSame = false;
         if(a.length() != b.length()){
-            return isSame;
+            return false;
         }
 
         int ind = 0;
         while(ind < a.length()){
             if(a.charAt(ind) == b.charAt(ind)){
-                isSame = true;
                 ind++;
             }
             else{
-                isSame = false;
-                return isSame;
+                return false;
             }
         }
-        return isSame;
+        return true;
     }
 
     public static void main(String[] args) {
