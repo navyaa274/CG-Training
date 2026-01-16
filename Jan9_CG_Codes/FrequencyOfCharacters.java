@@ -25,7 +25,13 @@ public class FrequencyOfCharacters {
             }
         }
 
-        for(int n : alphabets){
-            if(n == 0){
+        for(int i = 0; i<alphabets.length; i++){
+            char ch = 'a';
+            if(alphabets[i] != 0){
+                ch += (char)i;
+                System.out.println( ch + ": " +  alphabets[i]);
+            }
+        }
+        scn.close();
     }
 }
