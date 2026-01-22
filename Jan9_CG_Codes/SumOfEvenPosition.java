@@ -15,13 +15,26 @@ public class SumOfEvenPosition {
         int count = 0;
 
         while(temp>0){
-            int digit = temp%10;
             count ++;
             temp = temp/10;
         }
 
         if(count%2==0){
-
+            sum += n%10;
+            while(n>0){
+                n = n/100;
+                sum += n%10;
+            }
         }
+        else{
+            n = n/10;
+            while(n>0){
+                sum += n%10;
+                n = n/100;
+            }
+        }
+
+        System.out.println(sum);
+        scn.close();
     }
 }
