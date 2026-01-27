@@ -1,1 +1,1 @@
-# Capgemini-Training
+# CG-Training
