@@ -1,2 +1,0 @@
-standard questions:
-Q 1,2,5,7,8,14,
