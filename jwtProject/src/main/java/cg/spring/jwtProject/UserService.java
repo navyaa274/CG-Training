@@ -21,13 +21,13 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Customer c = repo.findByUsername(username);
-        if(c == null) throw new UsernameNotFoundException(username);
+        if(c == null) throw new UsernameNotFoundException("User not found with username: " + username);
 
         else {
             String user = c.getUsername();
             String password = c.getPassword();
             List<GrantedAuthority> x = new ArrayList<>();
-            x.add(new SimpleGrantedAuthority(c.getRole()));
+            x.add(new SimpleGrantedAuthority("ROLE_USER"));
 
             return new User(user, password, x);
         }

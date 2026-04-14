@@ -21,9 +21,10 @@ public class Config {
         return http
                 .csrf(x-> x.disable())
                 .authorizeHttpRequests(x->x
-                        .requestMatchers("/client").hasAnyAuthority("CLIENT")
-                        .requestMatchers("/backend").hasAuthority("ADMIN")
-                        .requestMatchers("/check").authenticated()
+                        .requestMatchers("/debit-card", "/cheque-book", "/cheque-book/issue",
+                                "/pass-book", "/pass-book/issue", "/balance", "/deposit", "/withdraw",
+                                "/transfer", "/change-password", "/change-info", "/close")
+                        .authenticated()
                         .anyRequest().permitAll()
 
                 )

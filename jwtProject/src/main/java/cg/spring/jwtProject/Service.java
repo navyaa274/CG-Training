@@ -47,6 +47,10 @@ public class Service {
         return customer;
     }
 
+    private boolean validatePassword(String password, String hashedPassword) {
+        return encoder.matches(password, hashedPassword);
+    }
+
 
     public String signup(Customer customer) {
         if(customer.getInitialDeposit() < 1000)
@@ -55,12 +59,14 @@ public class Service {
         customer.setPassword(encoder.encode(customer.getPassword()));
         customer.setBalance(customer.getInitialDeposit());
 
+        repo.save(customer);
+
         String idFormatted = "";
         int digits = String.valueOf(customer.getId()).length();
         if (digits > 5)
-            idFormatted = (customer.getId() / Math.pow(10, digits - 5)) + "";
+            idFormatted = (customer.getId() / (int)Math.pow(10, digits - 5)) + "";
         else if (digits < 5)
-            idFormatted = (customer.getId() * Math.pow(10, 5 - digits)) + "";
+            idFormatted = (customer.getId() * (int)Math.pow(10, 5 - digits)) + "";
         else
             idFormatted = customer.getId() + "";
 
@@ -141,6 +147,113 @@ public class Service {
         Customer customer = getAuthenticatedCustomer();
 
         return "YOUR ACCOUNT BALANCE IS : "  + customer.getBalance();
+    }
+
+    public String deposit(TransactionDTO transactionDTO) {
+        Customer customer = getAuthenticatedCustomer();
+
+        if(!validatePassword(transactionDTO.getPassword(), customer.getPassword()))
+            return "INVALID PASSWORD";
+
+        if (transactionDTO.getAmount() <= 0) {
+            return "INVALID AMOUNT";
+        }
+
+        customer.setBalance(customer.getBalance() + transactionDTO.getAmount());
+        repo.save(customer);
+
+        return "DEPOSIT SUCCESSFUL. NEW BALANCE: " + customer.getBalance();
+    }
+
+    public String withdraw(TransactionDTO transactionDTO) {
+        Customer customer = getAuthenticatedCustomer();
+
+        if(!validatePassword(transactionDTO.getPassword(), customer.getPassword()))
+            return "INVALID PASSWORD";
+
+        if (transactionDTO.getAmount() <= 0) {
+            return "INVALID AMOUNT";
+        }
+        if(transactionDTO.getAmount() > customer.getBalance())
+            throw new RuntimeException("INSUFFICIENT FUNDS");
+
+        customer.setBalance(customer.getBalance() - transactionDTO.getAmount());
+        repo.save(customer);
+
+        return "WITHDRAW SUCCESSFUL. NEW BALANCE: " + customer.getBalance();
+    }
+
+    public String transfer(TransactionDTO transactionDTO ) {
+        Customer customer = getAuthenticatedCustomer();
+
+        if(!customer.getAccNo().equals(transactionDTO.getFrom()))
+            return "INVALID ACCOUNT NUMBER, PLEASE ENTER YOUR ACCOUNT NUMBER";
+
+        Customer receiver = repo.findByAccNo(transactionDTO.getTo());
+        if(receiver == null)
+            return "INVALID RECEIVER ACCOUNT NUMBER";
+
+        if(!validatePassword(transactionDTO.getPassword(), customer.getPassword()))
+            return "INVALID PASSWORD";
+
+        if (transactionDTO.getAmount() <= 0) {
+            return "INVALID AMOUNT";
+        }
+
+        if(transactionDTO.getAmount() > customer.getBalance())
+            throw new RuntimeException("INSUFFICIENT FUNDS");
+
+        customer.setBalance(customer.getBalance() - transactionDTO.getAmount());
+        repo.save(customer);
+
+        receiver.setBalance(receiver.getBalance() + transactionDTO.getAmount());
+        repo.save(receiver);
+
+        return "AMOUNT TRANSFERRED SUCCESSFULLY";
+    }
+
+    public String changePassword(TransactionDTO transactionDTO) {
+        Customer customer = getAuthenticatedCustomer();
+
+        if(!validatePassword(transactionDTO.getOldPassword(), customer.getPassword()))
+            return "INVALID PASSWORD";
+
+        customer.setPassword(encoder.encode(transactionDTO.getNewPassword()));
+        repo.save(customer);
+
+        return "PASSWORD CHANGED SUCCESSFULLY";
+    }
+
+    public String changeInfo(Customer customer) {
+        Customer c = getAuthenticatedCustomer();
+
+        if(!validatePassword(customer.password, c.getPassword()))
+            return "INVALID PASSWORD";
+
+        if(customer.getEmail() != null && !customer.getEmail().equals(c.getEmail()))
+            c.setEmail(customer.getEmail());
+        if(customer.getMobile() != null && !customer.getMobile().equals(c.getMobile()))
+            c.setMobile(customer.getMobile());
+
+        repo.save(c);
+
+        return "INFO CHANGED SUCCESSFULLY";
+    }
+
+    public String close(TransactionDTO transactionDTO) {
+        Customer customer = getAuthenticatedCustomer();
+
+        if (!validatePassword(transactionDTO.getPassword(), customer.getPassword())) {
+            return "INVALID PASSWORD";
+        }
+
+        if (customer.getBalance() > 0) {
+            return "PLEASE WITHDRAW BALANCE BEFORE CLOSING ACCOUNT";
+        }
+
+        repo.delete(customer);
+
+        return "ACCOUNT CLOSED SUCCESSFULLY";
     }
 
 }
